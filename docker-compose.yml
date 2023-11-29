@@ -1,0 +1,36 @@
+version: '3'
+services:
+
+  node_app:
+    container_name: my_node_app
+    build: .
+    ports:
+      - 4000:3000
+    environment:
+      - PORT=3000
+      - MONGODB_URI=mongodb://dbtest:password@mongo_db:27017/nodemongotest
+      - REDIS_URI=redis://redis_db:6379
+
+    depends_on:
+      - redis_db
+      - mongo_db
+      
+  redis_db:
+    container_name: redis_container
+    image: redis:latest
+    restart: always
+
+
+  mongo_db:
+    container_name: mongo_container
+    image: mongo:latest
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=dbtest
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo_db:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+
+volumes:
+  mongo_db: {}
